@@ -1,0 +1,20 @@
+{
+  "name": "consulta-tce-rs-backend",
+  "version": "1.0.0",
+  "description": "api do app consulta-tce-rs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Iober Henrique da Cruz",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "body-parser": "^1.20.0",
+    "cheerio": "^1.0.0-rc.10",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "request": "^2.88.2"
+  }
+}
