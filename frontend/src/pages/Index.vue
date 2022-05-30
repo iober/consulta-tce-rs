@@ -51,10 +51,10 @@
                 <span class="cursor-pointer" @click="abreTce(props.row)"> {{props.row.nome.toUpperCase()}} </span>
               </q-td>
               <q-td>
-                {{props.row.dtenviogp}}
+                <div v-html="props.row.dtenviogp"></div>
               </q-td>
               <q-td>
-                {{props.row.dtenviocp}}
+                <div v-html="props.row.dtenviocp"></div>
               </q-td>
             </q-tr>
           </template>
@@ -192,11 +192,17 @@ export default {
         .post('https://consulta-tce-rs.herokuapp.com/consultaClientes', dados)
         .then((response) => {
           this.dados = response.data.splice(1)
-          this.dados.forEach(element => {
+          this.dados.forEach((element, index) => {
             if (element.dtenviogp) {
+              if (element.dtenviogp.indexOf('assinatura') > 0) {
+                this.dados[index].dtenviogp = '<span style="color: red; font-weight: bold">' + this.dados[index].dtenviogp + '</span>'
+              }
               this.totalgp++
             }
             if (element.dtenviocp) {
+              if (element.dtenviocp.indexOf('assinatura') > 0) {
+                this.dados[index].dtenviocp = '<span style="color: red; font-weight: bold">' + this.dados[index].dtenviocp + '</span>'
+              }
               this.totalcp++
             }
           })
