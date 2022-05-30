@@ -1,17 +1,18 @@
 <template>
-  <q-page class="q-pa-sm">
+  <div class="q-pa-sm">
     <div class="row justify-center q-gutter-sm">
-      <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+      <div class="col-lg- col-md-2 col-sm-2 col-xs-12">
         <q-input v-model="mesano" label="Digite a competência. Exemplo: 05/2018" dense class="q-pb-xs" mask="##/####"/>
       </div>
-      <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+      <div class="col-lg-2 col-md-2 col-sm-4 col-xs-12">
         <q-select v-model="crc" :options="crcopt" label="Selecionar CRC" dense/>
       </div>
-      <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+      <div class="col-lg-4 col-md-5 col-sm-5 col-xs-12">
         <q-btn color="blue-grey-3" text-color="black" dense label="Consultar"  @click="consultaClientes()" :disabled="!mesano" icon="search"/>
+        <q-btn color="white" text-color="black" class="q-ml-sm" label="GERENCIAR CLIENTES" dense icon="manage_accounts" @click="clientedlg = true"/>
       </div>
     </div>
-      <div v-if="dados.length >= 0">
+      <div>
         <q-table :data="dados" :columns="columns" row-key="nome" dense no-results-label="Nenhum resultado encontrado." :pagination.sync="pagination" :filter="filter || status">
           <template v-slot:top>
             <q-input class="q-pa-md" v-model="filter" label="Pesquisar Cliente" style="width: 400px" clearable dense>
@@ -21,39 +22,77 @@
               </template>
             </q-input>
             <q-space />
+              <div class="row">
+                <q-item-section class="col-4">
+                  <q-item-label>
+                    <strong class="text-weight-medium">FOLHA</strong>
+                  </q-item-label>
+                  <q-item-label caption class="flex flex-center">
+                      <span style="font-size: 20px"><strong>{{totalgp}}</strong></span>
+                  </q-item-label>
+                </q-item-section>
+                <q-space />
+                <q-item-section class="col-6">
+                  <q-item-label>
+                    <strong class="text-weight-medium">CONTABILIDADE</strong>
+                  </q-item-label>
+                  <q-item-label caption class="flex flex-center">
+                      <span style="font-size: 20px"><strong>{{totalcp}}</strong></span>
+                  </q-item-label>
+                </q-item-section>
+              </div>
+            <q-space />
             <q-select class="q-pa-md" :options="statusopt"  v-model="status" label="Status do Envio" style="width: 250px" clearable dense/>
             <q-toggle v-model="semEnvio" val="1" label="Cliente sem envio" @input="selecionaSemEnvio()"/>
           </template>
-          <template v-slot:body-cell-nome="props">
-            <q-td :props="props">
+          <template v-slot:body="props">
+            <q-tr>
+              <q-td :style="!props.row.dtenviocp || !props.row.dtenviogp ? 'color: red' : ''">
                 <span class="cursor-pointer" @click="abreTce(props.row)"> {{props.row.nome.toUpperCase()}} </span>
-            </q-td>
-          </template>
-          <template v-slot:body-cell-dtenviocp="props">
-            <q-td :props="props">
-                {{props.row.dtenviocp}}
-            </q-td>
-          </template>
-          <template v-slot:body-cell-dtenviogp="props">
-            <q-td :props="props">
+              </q-td>
+              <q-td>
                 {{props.row.dtenviogp}}
-            </q-td>
+              </q-td>
+              <q-td>
+                {{props.row.dtenviocp}}
+              </q-td>
+            </q-tr>
           </template>
         </q-table>
       </div>
-  </q-page>
+      <q-dialog v-model="clientedlg" :maximized="mobile">
+        <q-card :style="this.$q.platform.is.mobile ? '' : 'width: 700px; max-width: 80vw;'">
+          <q-card-section>
+            <div class="text-h6">Cadastro de Clientes</div>
+          </q-card-section>
+          <q-card-section>
+            <clientes />
+          </q-card-section>
+          <q-card-actions align="right">
+          <q-btn flat label="Fechar" color="primary" v-close-popup outline/>
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+  </div>
 </template>
 
 <script>
-import { Loading, openURL, QSpinnerRadio } from 'quasar'
+import { openURL, QSpinnerRadio } from 'quasar'
+import clientes from '../components/clientes.vue'
+const moment = require('moment')
+moment.locale('pt-br')
 export default {
-  name: 'PageIndex',
+  components: { clientes },
+  name: 'index',
   data () {
     return {
       filter: '',
+      mobile: false,
+      clientedlg: false,
       status: '',
       crc: 'Passo Fundo',
       semEnvio: false,
+      linhaSelecionada: '',
       nome: '',
       dados: [],
       statusopt: ['Sem Pendências', 'Pendente de assinatura'],
@@ -61,7 +100,8 @@ export default {
       dadosSemEnvio: [],
       dadosBackup: [],
       mesano: '04/2022',
-      anoscomp: ['01/2022', '02/2022', '03/2022', '04/2022', '05/2022', '06/2022', '07/2022', '08/2022', '09/2022', '10/2022', '11/2022', '12/2022'],
+      totalgp: 0,
+      totalcp: 0,
       pagination: {
         page: 1,
         rowsPerPage: 20,
@@ -96,6 +136,25 @@ export default {
       ]
     }
   },
+  created () {
+    if (this.$q.platform.is.mobile) {
+      this.mobile = true
+    }
+    this.$q.loading.show({
+      spinnerColor: 'teal-14',
+      html: true,
+      delay: 5000,
+      message: 'Por favor Aguarde...'
+    })
+    this.$axios
+      .get('https://consulta-tce-rs.herokuapp.com/start')
+      .then((response) => {
+        if (response.status === 200) {
+          this.$q.loading.hide()
+          this.mesano = moment().subtract(1, 'months').format('MM/YYYY')
+        }
+      })
+  },
   methods: {
     async selecionaSemEnvio () {
       if (this.semEnvio === true) {
@@ -112,7 +171,14 @@ export default {
       }
     },
     async consultaClientes () {
-      Loading.show({
+      this.dadosSemEnvio = []
+      this.dadosBackup = []
+      this.totalgp = 0
+      this.totalcp = 0
+      this.semEnvio = false
+      this.status = ''
+      this.filter = ''
+      this.$q.loading.show({
         spinner: QSpinnerRadio,
         spinnerColor: 'teal-14',
         html: true,
@@ -123,10 +189,20 @@ export default {
       dados.mes = this.mesano
       dados.crc = this.crc
       this.$axios
-        .post('https://app-agenda-ihc.herokuapp.com/consultaClientes', dados)
+        .post('https://consulta-tce-rs.herokuapp.com/consultaClientes', dados)
         .then((response) => {
           this.dados = response.data.splice(1)
-          Loading.hide()
+          this.dados.forEach(element => {
+            if (element.dtenviogp) {
+              this.totalgp++
+            }
+            if (element.dtenviocp) {
+              this.totalcp++
+            }
+          })
+          this.totalgp = this.dados.length - this.totalgp
+          this.totalcp = this.dados.length - this.totalcp
+          this.$q.loading.hide()
         })
     },
     async abreTce (dados) {

@@ -2,17 +2,14 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <!-- <q-btn
+        <img
+          stretch
           flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
-        /> -->
-
+          src="../statics/logo.png"
+          width="50px"
+        />
         <q-toolbar-title>
-          Consulta Envios TCE-RS
+          CONSULTA PAD TCE-RS
         </q-toolbar-title>
       </q-toolbar>
     </q-header>

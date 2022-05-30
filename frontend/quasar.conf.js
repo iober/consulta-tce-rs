@@ -6,9 +6,6 @@
  */
 
 // Configuration for your app
-// https://v1.quasar.dev/quasar-cli/quasar-conf-js
-
-const ESLintPlugin = require('eslint-webpack-plugin')
 
 module.exports = function (ctx) {
   return {
@@ -23,14 +20,6 @@ module.exports = function (ctx) {
     // https://v1.quasar.dev/quasar-cli/boot-files
     boot: [
       'axios'
-    ],
-    // Quasar plugins
-    plugins: [
-      'i18n',
-      'axios',
-      'Notify',
-      'Dialog',
-      'Loading'
     ],
 
     // https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -55,9 +44,10 @@ module.exports = function (ctx) {
     // Full list of options: https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
       env: ctx.dev
-        ? { API: JSON.stringify('https://app-agenda-ihc.herokuapp.com') }
-        : { API: JSON.stringify('https://app-agenda-ihc.herokuapp.com') },
-      vueRouterMode: 'history', // available values: 'hash', 'history'
+        ? { API: JSON.stringify('https://consulta-tce-rs.herokuapp.com') }
+        : { API: JSON.stringify('https://consulta-tce-rs.herokuapp.com') },
+      scopeHoisting: true,
+      vueRouterMode: 'history'
       // transpile: false,
 
       // Add dependencies for transpiling with Babel (Array of string/regex)
@@ -76,10 +66,6 @@ module.exports = function (ctx) {
 
       // https://v1.quasar.dev/quasar-cli/handling-webpack
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
-      chainWebpack (chain) {
-        chain.plugin('eslint-webpack-plugin')
-          .use(ESLintPlugin, [{ extensions: ['js', 'vue'] }])
-      }
     },
 
     // Full list of options: https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
@@ -98,7 +84,7 @@ module.exports = function (ctx) {
       // Possible values for "importStrategy":
       // * 'auto' - (DEFAULT) Auto-import needed Quasar components & directives
       // * 'all'  - Manually specify what to import
-      importStrategy: 'auto'
+      importStrategy: 'auto',
 
       // For special cases outside of where "auto" importStrategy can have an impact
       // (like functional components as one of the examples),
@@ -106,6 +92,12 @@ module.exports = function (ctx) {
       //
       // components: [],
       // directives: [],
+      // Quasar plugins
+      plugins: [
+        'Notify',
+        'Dialog',
+        'Loading'
+      ]
     },
 
     // animations: 'all', // --- includes all animations
@@ -114,16 +106,18 @@ module.exports = function (ctx) {
 
     // https://v1.quasar.dev/quasar-cli/developing-ssr/configuring-ssr
     ssr: {
-      pwa: false
+      pwa: true
     },
 
     // https://v1.quasar.dev/quasar-cli/developing-pwa/configuring-pwa
     pwa: {
-      workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
-      workboxOptions: {}, // only for GenerateSW
+      workboxOptions: {
+        skipWaiting: true,
+        clientsClaim: true
+      },
       manifest: {
-        name: 'consulta-tce-rs',
-        short_name: 'consulta-tce-rs',
+        name: 'Consulta PAD TCE-RS',
+        short_name: 'Consulta PAD',
         description: 'Consulta automatizada das prestações de contas de entidades públicas junto ao TCE-RS.',
         display: 'standalone',
         orientation: 'portrait',
@@ -131,27 +125,27 @@ module.exports = function (ctx) {
         theme_color: '#027be3',
         icons: [
           {
-            src: 'icons/icon-128x128.png',
+            src: 'icons/logo.png',
             sizes: '128x128',
             type: 'image/png'
           },
           {
-            src: 'icons/icon-192x192.png',
+            src: 'icons/logo.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'icons/icon-256x256.png',
+            src: 'icons/logo.png',
             sizes: '256x256',
             type: 'image/png'
           },
           {
-            src: 'icons/icon-384x384.png',
+            src: 'icons/logo.png',
             sizes: '384x384',
             type: 'image/png'
           },
           {
-            src: 'icons/icon-512x512.png',
+            src: 'icons/logo.png',
             sizes: '512x512',
             type: 'image/png'
           }

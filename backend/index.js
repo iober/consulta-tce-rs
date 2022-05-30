@@ -3,6 +3,7 @@ const express = require("express"),
   cors = require("cors"),
   cheerio = require("cheerio"),
   axios = require("axios"),
+  mysql = require("mysql")
 bodyParser = require("body-parser"), 
 port = process.env.PORT || 3000
 app.set("port", port);
@@ -14,13 +15,46 @@ app.use(
   })
 );
 
+var con = mysql.createPool({
+  connectionLimit: 25,
+  user: 'dayanagiacomin',
+  password: 'caralho4',
+  host: 'mysql.dayanagiacomini.com.br',
+  database: 'dayanagiacomin',
+  port: 3306
+});
+
 app.get("/", (req, res ) => {
-  console.log('*** OK OK OK ***')
+  console.log('*** OK OK OK ***')  
+  res.write('*** API OK ***')
 })
 
-app.get("/clientes", (req, res ) => {
-  console.log('*** OK OK OK ***')
+app.get("/start", (req, res ) => {
+  var https = require('https')
+    https.get('https://consulta-tce-rs.herokuapp.com/')
+    res.send(200)
 })
+
+// retorna todos os resultados do sistema de controle do PAD
+app.get('/clientesPad/:id', function(req, res) {
+  var sql = 'select * from clientesPad where crc like "%' +  req.params.id +  '%"';
+  con.query(sql, function(err, result) {
+    if (err) {
+      console.log(err.stack);
+    }
+    res.send(result);
+  });
+});
+
+app.get('/clientesPadGeral', function(req, res) {
+  var sql = 'select * from clientesPad';
+  con.query(sql, function(err, result) {
+    if (err) {
+      console.log(err.stack);
+    }
+    res.send(result);
+  });
+});
 
 app.post("/consultaClientes", (req, res) => {
   var anomes = {}
@@ -89,10 +123,11 @@ app.post("/consultaClientes", (req, res) => {
         },
       ];             
     axios
-    .get('http://govbrpf.herokuapp.com/clientesPad/' + crc)
-    .then(async (response) => {      
+    .get('https://govbrpf.herokuapp.com/clientesPad/' + crc)
+    .then(async (response) => {
           for (let index = 0; index < response.data.length; index++) {
             clientes[index] = {
+                idcliente: response.data[index].idCliente,
                 nome: response.data[index].nmCliente,
                 codigo: response.data[index].codTce       
             }
@@ -144,7 +179,7 @@ app.post("/consultaClientes", (req, res) => {
           if (clientes2.length === clientes.length) {
             setTimeout(() => {
               res.send(clientes2)
-            }, 5000);            
+            }, 2000);            
           }
         })
         .catch((error) => {
@@ -158,8 +193,50 @@ app.post("/consultaClientes", (req, res) => {
     //     res.send(clientes2)    
     // }, 10000);
     
-}
+  }
+});
 
+// INICIO DO CRUD CLIENTES
+
+// insere cadastro no banco
+app.post('/adiciona', (req, res) => {
+  var dados = req.body
+  con.query('INSERT INTO clientesPad SET ?', dados, function(
+    error,
+    results,
+    fields
+  ) {
+    if (error) throw error;
+    res.end(JSON.stringify(results));
+  });
+});
+
+// deleta cadastro
+app.post('/remove', (req, res) => {
+  var dados = req.body
+  con.query(
+    'delete from clientesPad where idCliente=?',
+    [dados.idCliente],
+    function(error, results, fields) {
+      if (error) throw error;
+      res.end(JSON.stringify(results));
+    }
+  );
+});
+
+app.post('/atualiza', (req, res) => {
+  var dados = req.body
+  if (dados.crc.value !== undefined) {
+    dados.crc = dados.crc.value    
+  }
+  var query = `update clientesPad set nmCliente=?, crc=?, codTce=? where idCliente=?`
+  con.query(query, [dados.nmCliente, dados.crc, dados.codTce, dados.idCliente], (err, rows, fields) => {
+      if (!err) {
+         res.send(rows.rows)
+      } else {
+          console.log(err)
+      }
+  })
 });
 
 app.listen(port, () => {
