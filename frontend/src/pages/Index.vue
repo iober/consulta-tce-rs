@@ -146,14 +146,7 @@ export default {
       delay: 5000,
       message: 'Por favor Aguarde...'
     })
-    this.$axios
-      .get('https://consulta-tce-rs.herokuapp.com/start')
-      .then((response) => {
-        if (response.status === 200) {
-          this.$q.loading.hide()
-          this.mesano = moment().subtract(1, 'months').format('MM/YYYY')
-        }
-      })
+    this.mesano = moment().subtract(1, 'months').format('MM/YYYY')
   },
   methods: {
     async selecionaSemEnvio () {
@@ -189,7 +182,7 @@ export default {
       dados.mes = this.mesano
       dados.crc = this.crc
       this.$axios
-        .post('https://consulta-tce-rs.herokuapp.com/consultaClientes', dados)
+        .post('http://localhost:3000/consultaClientes', dados)
         .then((response) => {
           this.dados = response.data.splice(1)
           this.dados.forEach((element, index) => {

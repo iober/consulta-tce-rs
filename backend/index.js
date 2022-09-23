@@ -29,12 +29,6 @@ app.get("/", (req, res ) => {
   res.write('*** API OK ***')
 })
 
-app.get("/start", (req, res ) => {
-  var https = require('https')
-    https.get('https://consulta-tce-rs.herokuapp.com/')
-    res.send(200)
-})
-
 // retorna todos os resultados do sistema de controle do PAD
 app.get('/clientesPad/:id', function(req, res) {
   var sql = 'select * from clientesPad where crc like "%' +  req.params.id +  '%"';
@@ -123,7 +117,7 @@ app.post("/consultaClientes", (req, res) => {
         },
       ];             
     axios
-    .get('https://govbrpf.herokuapp.com/clientesPad/' + crc)
+    .get('http://painelgov-api.iober.com.br/clientesPad/' + crc)
     .then(async (response) => {
           for (let index = 0; index < response.data.length; index++) {
             clientes[index] = {
@@ -183,7 +177,7 @@ app.post("/consultaClientes", (req, res) => {
           }
         })
         .catch((error) => {
-          console.log("erro", error);
+          console.log("ERRO CAIU LER()" + error);
         });
     // }
     // // function mostrar () {

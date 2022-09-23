@@ -129,7 +129,7 @@ export default {
   },
   methods: {
     async carregaClientes () {
-      await this.$axios.get('https://consulta-tce-rs.herokuapp.com/clientesPadGeral/')
+      await this.$axios.get('https://consulta-tce-api.iober.com.br/clientesPadGeral/')
         .then((response) => {
           this.clientes = response.data
         }).catch(() => {
@@ -146,7 +146,7 @@ export default {
       dados.nmCliente = this.dados.nmCliente
       dados.crc = this.dados.crc.value
       dados.codTce = this.dados.codTce
-      await this.$axios.post('https://consulta-tce-rs.herokuapp.com/adiciona', dados)
+      await this.$axios.post('https://consulta-tce-api.iober.com.br/adiciona', dados)
         .then((response) => {
           this.carregaClientes()
           this.notificaoSucesso('Cliente cadastrado.')
@@ -173,7 +173,7 @@ export default {
       dados.nmCliente = this.dados.nmCliente
       dados.crc = this.dados.crc
       dados.codTce = this.dados.codTce
-      await this.$axios.post('https://consulta-tce-rs.herokuapp.com/atualiza', dados)
+      await this.$axios.post('https://consulta-tce-api.iober.com.br/atualiza', dados)
         .then(response => {
           this.carregaClientes()
           this.notificaoSucesso('Cliente atualizado.')
@@ -210,7 +210,7 @@ export default {
           const dados = {}
           dados.idCliente = cli.idCliente
           await this.$axios
-            .post('https://consulta-tce-rs.herokuapp.com/remove', dados)
+            .post('https://consulta-tce-api.iober.com.br/remove', dados)
             .then(response => {
               this.$q.notify({
                 color: 'red-5',
