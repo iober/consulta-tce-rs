@@ -140,12 +140,6 @@ export default {
     if (this.$q.platform.is.mobile) {
       this.mobile = true
     }
-    this.$q.loading.show({
-      spinnerColor: 'teal-14',
-      html: true,
-      delay: 5000,
-      message: 'Por favor Aguarde...'
-    })
     this.mesano = moment().subtract(1, 'months').format('MM/YYYY')
   },
   methods: {
