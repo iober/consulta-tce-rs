@@ -51,6 +51,7 @@ app.get('/clientesPadGeral', function(req, res) {
 });
 
 app.post("/consultaClientes", (req, res) => {
+  console.log('entrou aqui')
   var anomes = {}
   var crc = req.body.crc
   anomes.completo = req.body.mes
@@ -117,7 +118,7 @@ app.post("/consultaClientes", (req, res) => {
         },
       ];             
     axios
-    .get('http://painelgov-api.iober.com.br/clientesPad/' + crc)
+    .get('https://painelgov-api.iober.com.br/clientesPad/' + crc)
     .then(async (response) => {
           for (let index = 0; index < response.data.length; index++) {
             clientes[index] = {
@@ -127,6 +128,7 @@ app.post("/consultaClientes", (req, res) => {
             }
             ler(clientes[index])
           }
+          console.log(clientes)
           // setTimeout(() => {
           //   ler()
           // }, 1600);          

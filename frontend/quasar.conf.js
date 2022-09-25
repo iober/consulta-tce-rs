@@ -44,8 +44,10 @@ module.exports = function (ctx) {
     // Full list of options: https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
       env: ctx.dev
-        ? { API: JSON.stringify('https://consulta-tce-api.iober.com.br') }
-        : { API: JSON.stringify('https://consulta-tce-api.iober.com.br') },
+        // ? { API: JSON.stringify('https://consulta-tce-api.iober.com.br') }
+        // : { API: JSON.stringify('https://consulta-tce-api.iober.com.br') },
+        ? { API: JSON.stringify('http://localhost:3000') }
+        : { API: JSON.stringify('http://localhost:3000') },
       scopeHoisting: true,
       vueRouterMode: 'history'
       // transpile: false,
